@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Game Belajar Bahasa Inggris</title>
+  <link rel="icon" type="image/x-icon" href="gamebook.png">
+  <style>
+    body {
+      font-family: "Comic Sans MS", sans-serif;
+      background: #f0f9ff;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      color: #0077b6;
+    }
+    #game {
+      margin-top: 20px;
+    }
+    #image {
+      width: 200px;
+      height: 200px;
+      border: 4px solid #90e0ef;
+      border-radius: 16px;
+      background: #fff;
+      margin: 10px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 100px;
+    }
+    .options {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      border: none;
+      border-radius: 12px;
+      background: #48cae4;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #0096c7;
+    }
+    #feedback {
+      margin-top: 20px;
+      font-size: 22px;
+      font-weight: bold;
+    }
+    #result {
+      margin-top: 30px;
+      font-size: 24px;
+      font-weight: bold;
+      color: #03045e;
+    }
+    #restartBtn {
+      display: none;
+      margin-top: 20px;
+      background: #ff6b6b;
+    }
+    #restartBtn:hover {
+      background: #d90429;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎮 Game Belajar Bahasa Inggris 📖</h1>
+  <p>Pilih jawaban yang benar!</p>
+
+  <div id="game">
+    <div id="image">🍎</div>
+    <div class="options">
+      <button>Option 1</button>
+      <button>Option 2</button>
+      <button>Option 3</button>
+    </div>
+    <div id="feedback"></div>
+    <div id="result"></div>
+    <button id="restartBtn" onclick="restartGame()">🔄 Coba Lagi</button>
+  </div>
+
+  <script>
+    const questions = [
+      { emoji: "🍎", answer: "Apple", options: ["Apple", "Dog", "Car"] },
+      { emoji: "🐶", answer: "Dog", options: ["Cat", "Dog", "Fish"] },
+      { emoji: "🚗", answer: "Car", options: ["Bus", "Car", "Bike"] },
+      { emoji: "🍌", answer: "Banana", options: ["Banana", "Orange", "Grape"] },
+      { emoji: "🐱", answer: "Cat", options: ["Dog", "Cat", "Bird"] },
+      { emoji: "🟢", answer: "Green", options: ["Red", "Blue", "Green"] },
+      { emoji: "🔵", answer: "Blue", options: ["Blue", "Yellow", "Pink"] },
+      { emoji: "🍊", answer: "Orange", options: ["Apple", "Orange", "Grape"] },
+      { emoji: "⭐", answer: "Star", options: ["Sun", "Star", "Moon"] },
+      { emoji: "🌙", answer: "Moon", options: ["Moon", "Star", "Sun"] },
+    ];
+
+    let score = 0;
+    let current = 0;
+    let quiz = [];
+
+    function shuffleArray(arr) {
+      return arr.sort(() => Math.random() - 0.5);
+    }
+
+    function speak(text) {
+      let msg = new SpeechSynthesisUtterance(text);
+      msg.lang = "en-US";
+      window.speechSynthesis.speak(msg);
+    }
+
+    function startGame() {
+      score = 0;
+      current = 0;
+      quiz = shuffleArray([...questions]).slice(0, 10);
+      document.getElementById("restartBtn").style.display = "none";
+      loadQuestion();
+    }
+
+    function loadQuestion() {
+      if (current >= quiz.length) {
+        return showResult();
+      }
+
+      let q = quiz[current];
+      document.getElementById("image").textContent = q.emoji;
+      const btns = document.querySelectorAll(".options button");
+      q.options.forEach((opt, i) => {
+        btns[i].textContent = opt;
+        btns[i].onclick = () => checkAnswer(opt);
+      });
+      document.getElementById("feedback").textContent = "";
+      document.getElementById("result").textContent = "";
+      speak(q.answer);
+    }
+
+    function checkAnswer(choice) {
+      let correct = quiz[current].answer;
+      let feedback = document.getElementById("feedback");
+
+      if (choice === correct) {
+        feedback.textContent = "✅ Correct!";
+        feedback.style.color = "green";
+        score++;
+        speak("Correct");
+      } else {
+        feedback.textContent = "❌ Wrong!";
+        feedback.style.color = "red";
+        speak("Wrong");
+      }
+
+      setTimeout(() => {
+        current++;
+        loadQuestion();
+      }, 1000);
+    }
+
+    function showResult() {
+      let result = document.getElementById("result");
+      let percentage = (score / quiz.length) * 100;
+      let grade = "D";
+      if (percentage >= 90) grade = "A";
+      else if (percentage >= 75) grade = "B";
+      else if (percentage >= 60) grade = "C";
+      else grade = "D";
+
+      result.innerHTML = `🎯 Skor kamu: ${score}/${quiz.length} <br> 🏆 Nilai: ${grade}`;
+      speak(`Your score is ${score}. Grade ${grade}`);
+      document.getElementById("restartBtn").style.display = "inline-block";
+    }
+
+    function restartGame() {
+      startGame();
+    }
+
+    // Start pertama kali
+    startGame();
+  </script>
+</body>
+</html>
